@@ -3,7 +3,7 @@
   "name": "Ajimaru",
   "version": "0.0.1",
   "action": {
-    "default_icon": "logo16.png",
+    "default_icon": "icon32_disable.png",
     "default_title": "あじまる",
     "default_popup": "popup.html"
   },
@@ -12,5 +12,7 @@
   },
   "description": "配信開始時刻まで瞬時にジャンプできるChrome拡張",
   "options_page": "options.html",
-  "permissions": []
+  "permissions": [
+    "tabs"
+  ]
 }

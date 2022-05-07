@@ -13,9 +13,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "npm run build:react && npm run build:background",
+    "build": "npm run build:react && npm run build:background && npm run build:content",
     "build:react": "react-scripts build && npm run rename:popup && npm run rename:options",
     "build:background": "webpack --config webpack.background.config.ts",
+    "build:content": "webpack --config webpack.content.config.ts",
     "rename:popup": "sed 's/root/popup/' build/index.html > build/popup.html",
     "rename:options": "sed -e 's/root/options/' build/index.html >  build/options.html",
     "test": "react-scripts test",

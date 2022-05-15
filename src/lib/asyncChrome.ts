@@ -55,7 +55,16 @@ const asyncTabsSendMessageWith = (tabId: number, message: any): Promise<any> => 
         chrome.tabs.sendMessage(
             tabId,
             message,
-            (res)=>{resolve(res)}
+            (res)=>{
+                if (res !== undefined) {
+                    resolve(res);
+                } else {
+                    const error = chrome.runtime.lastError;
+                    if (error?.message === 'Could not establish connection. Receiving end does not exist.') {
+                        reject('ReceiverDoesNotExist')
+                    }
+                }
+            }
         )
     })
 }

@@ -1,18 +1,30 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
-    // popupからのhandshakeを受け取り、resとしてtitleとurlを返す
-    if (message.type === 'handshakeToContentFromPopupForVideoTitle') {
-        const metaTagOfTitle:any = document.querySelector('meta[name="title"]')
-        const title = metaTagOfTitle.content;
+    // backgroundからのhandshakeを受け取り、resとしてtitleを返す
+    if (message.type === 'handshakeFromBackgroundToContentForVideoTitle') {
+        const titleElement = document.querySelector('.title.style-scope.ytd-video-primary-info-renderer')?.firstChild as HTMLElement
+        if (titleElement === undefined) {
+            sendResponse({
+                videoTitle: undefined
+            })
+            return true;
+        }
+        const title = titleElement.innerText
         sendResponse({
             videoTitle: title
         });
+        return true;
     }
-    if (message.type === 'handshakeToContentFromPopupJump') {
+
+    // popupからのmessageを受け取り、ビデオをジャンプさせる
+    if (message.type === 'messageToContentFromPopupForJumping') {
         let video = document.getElementsByClassName('html5-main-video')[0] as any;
         video.currentTime = 600;
         sendResponse();
+        return true;
     }
-    sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
+    // 特定の用途(message)以外ではとりあえず終わった事だけ返す
+    console.log(message);
+    sendResponse();
     return true;
 });
 

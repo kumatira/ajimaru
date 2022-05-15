@@ -5,7 +5,7 @@ const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
     const jump = async ()=>{
         const tab = await asyncTabsGet(props.tabId);
         if (tab.status !== 'complete') { return };
-        await asyncTabsSendMessageWith(props.tabId, {type: 'handshakeToContentFromPopupJump', startTime: props.startTime});
+        await asyncTabsSendMessageWith(props.tabId, {type: 'messageToContentFromPopupForJumping', startTime: props.startTime});
     }
     return (
         <button onClick={async () => await jump()}>Jump to {props.startTime}s</button>
@@ -22,31 +22,17 @@ const Popup: React.FC = () => {
     // backgroundにhandshakeを送り、resとして各情報を受け取る
     const collectTabInfo = async () =>{
         const res = await asyncRuntimeSendMessage('handshakeFromPopupToBackgroundForTabInfo');
-
         setTabId(res.tabId)
         setTabUrl(res.tabUrl);
+        setVideoTitle(res.videoTitle)
         setVideoState(res.videoState);
         setVideoStartTime(res.videoStartTime);
     };
-
-    const collectVideoTitle = async () =>{
-        if (Number.isNaN(tabId)) { return }
-        const tab = await asyncTabsGet(tabId);
-        if (tab.status !== 'complete') {return };
-
-        // contentにhandshakeを送り、resとしてビデオのtitleを受け取る
-        const res = await asyncTabsSendMessageWith(tabId, {type: 'handshakeToContentFromPopupForVideoTitle'});
-        setVideoTitle(res.videoTitle)
-    }
 
     // 第二引数が[] = いずれのstateの変化にも反応せずロード時の一回のみ走る (stateが変わるたびにモジュール全体がレンダーされるreactの性質に注意)
     useEffect(() => {
         collectTabInfo();
     }, [])
-
-    useEffect(() => {
-        collectVideoTitle();
-    }, [tabId])
 
     return (
         <div style={{width: '200px'}}>

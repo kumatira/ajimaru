@@ -9,14 +9,11 @@ const resetProperties = ():void => {
     currentVideoStartTime  = NaN;
 }
 
-const isYTVideoUrl = (url:string):boolean => {
+const isYouTubeVideoUrl = (url:string):boolean => {
     return url.includes('https://www.youtube.com/watch')
 }
 
 // 初期化
-(async() => {
-    await chrome.action.disable(); //初期は無効にする
-})();
 let currentTabId: number;
 let currentTabTitle: string | undefined;
 let currentTabUrl: string | undefined;
@@ -27,11 +24,9 @@ resetProperties();
 
 // タブの選択が切り替わった時に発火 (タブ切り替え時、あるタブが消されて別のタブが前に出た時、etc...)
 chrome.tabs.onHighlighted.addListener(async (highlightInfo) => {
-    await chrome.action.disable(); // タブが切り替わるたびに一旦無効にする
+    // await chrome.action.disable(); // タブが切り替わるたびに一旦無効にする
     const [highlightedTabId] = highlightInfo.tabIds;
     const tab = await asyncTabsGet(highlightedTabId);
-
-    if (!isYTVideoUrl(tab.url)) { return }
     if (tab.status === 'complete') {
         updateStatus('onHighlighted')
     }else {
@@ -45,13 +40,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const [current] = (await chrome.history.search({text: '', maxResults: 1}));
 
 
-    if (!isYTVideoUrl(tab.url) || tab.url !== current.url) {
-        await chrome.action.disable();
+    if (tab.url !== current.url) {
         return
     }
 
     if (changeInfo.hasOwnProperty('status') && changeInfo.status === 'loading') {
-        await chrome.action.disable();
         return
     }
 
@@ -67,6 +60,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
+    console.log(message);
     // popupからのhandshakeを受け取り、resとしてtitleとurlを返す
     if (message === 'handshakeFromPopupToBackgroundForTabInfo') {
         const res = {
@@ -78,43 +72,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
             videoStartTime: currentVideoStartTime
         };
         sendResponse(res);
+        console.log(res);
         return true;
     }
-    console.log(message);
     sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
     return true;
 });
 
 const updateStatus = async (triggerEvent) => {
+    console.log(`update by ${triggerEvent}`, currentTabUrl);
     const [newTab]: chrome.tabs.Tab[] = await asyncTabsQuery({active: true, currentWindow:true});
     currentTabId = newTab.id;
     currentTabTitle = newTab.title;
     currentTabUrl = newTab.url;
-    currentVideoState = 'notYouTube';
 
-    // ToDo: vget-APIにvideoIDで問い合わせ、stateを切り替える
-    // 1. vget-APIに存在しない(vgetNotFound)
-    // 2. 存在するがstartTimeの情報がない(vgetDoesntHaveStartTime)
-    // 3. 存在しstartTimeの情報がある(vgetHasStartTime)
-    currentVideoState = 'vgetHasStartTime';
-    currentVideoStartTime = 15;
-
-    console.log(`update by ${triggerEvent}`, currentTabUrl);
-
-    try {
-        const res = await asyncTabsSendMessageWith(currentTabId, {type: 'handshakeFromBackgroundToContentForVideoTitle'});
-        currentVideoTitle = res.videoTitle;
-    } catch (error) {
-        if (error === 'ReceiverDoesNotExist') { // content.jsが読み込まれておらずメッセージの送り先がない時は、content.jsを読み込んだ上で呼び直す
-            await chrome.scripting.executeScript({
-                target: {tabId: currentTabId, frameIds: [0]},
-                files: ['content.js'],
-            });
+    if (!isYouTubeVideoUrl(currentTabUrl)) {
+        currentVideoState = 'notYouTube';
+        currentVideoTitle = undefined;
+        await asyncSetIcon({path: "icon32_disable.png", tabId: currentTabId});
+    } else {
+        // ToDo: vget-APIにvideoIDで問い合わせ、stateを切り替える
+        // 1. vget-APIに存在しない(vgetNotFound)
+        // 2. 存在するがstartTimeの情報がない(vgetDoesntHaveStartTime)
+        // 3. 存在しstartTimeの情報がある(vgetHasStartTime)
+        currentVideoState = 'vgetHasStartTime';
+        currentVideoStartTime = 15;
+        try {
             const res = await asyncTabsSendMessageWith(currentTabId, {type: 'handshakeFromBackgroundToContentForVideoTitle'});
-            if (res.videoTitle !== undefined) {
-                currentVideoTitle = res.videoTitle;
+            currentVideoTitle = res.videoTitle;
+        } catch (error) {
+            if (error === 'ReceiverDoesNotExist') { // content.jsが読み込まれておらずメッセージの送り先がない時は、content.jsを読み込んだ上で呼び直す
+                await chrome.scripting.executeScript({
+                    target: {tabId: currentTabId, frameIds: [0]},
+                    files: ['content.js'],
+                });
+                const res = await asyncTabsSendMessageWith(currentTabId, {type: 'handshakeFromBackgroundToContentForVideoTitle'});
+                if (res.videoTitle !== undefined) {
+                    currentVideoTitle = res.videoTitle;
+                }
             }
         }
+        // タブの読み込みが完了して初めて有効化&アイコン活性化する
+        await asyncSetIcon({path: "icon32_able.png", tabId: currentTabId});
+        await chrome.action.enable();
     }
 
     console.log(`
@@ -124,10 +124,6 @@ const updateStatus = async (triggerEvent) => {
     currentVideoTitle: ${currentVideoTitle}
     currentVideoState: ${currentVideoState}
     `);
-
-    // タブの読み込みが完了して初めて有効化&アイコン活性化する
-    await asyncSetIcon({path: "icon32_able.png", tabId: currentTabId});
-    await chrome.action.enable();
 }
 
 console.clear();

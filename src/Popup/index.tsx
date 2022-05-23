@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {asyncTabsGet, asyncRuntimeSendMessage, asyncTabsSendMessageWith } from '../lib/asyncChrome';
-
-const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
-    const jump = async ()=>{
-        const tab = await asyncTabsGet(props.tabId);
-        if (tab.status !== 'complete') { return };
-        await asyncTabsSendMessageWith(props.tabId, {type: 'messageToContentFromPopupForJumping', startTime: props.startTime});
-    }
-    return (
-        <button onClick={async () => await jump()}>Jump to {props.startTime}s</button>
-    );
-}
+import { NotYouTubeDiv, StartTimeRegisteredDiv } from './mainDiv';
 
 const Popup: React.FC = () => {
     const [tabId, setTabId] = useState<number>(NaN);
@@ -18,6 +8,7 @@ const Popup: React.FC = () => {
     const [videoTitle, setVideoTitle] = useState<string|undefined>( 'title' );
     const [videoState, setVideoState] = useState<string|undefined>( undefined );
     const [videoStartTime, setVideoStartTime] = useState<number>(NaN);
+    const [mainDiv, setMainDiv] = useState< JSX.Element>(<NotYouTubeDiv/>);
 
     // backgroundにhandshakeを送り、resとして各情報を受け取る
     const collectTabInfo = async () =>{
@@ -25,8 +16,8 @@ const Popup: React.FC = () => {
         setTabId(res.tabId)
         setTabUrl(res.tabUrl);
         setVideoTitle(res.videoTitle)
-        setVideoState(res.videoState);
         setVideoStartTime(res.videoStartTime);
+        setVideoState(res.videoState);
     };
 
     // 第二引数が[] = いずれのstateの変化にも反応せずロード時の一回のみ走る (stateが変わるたびにモジュール全体がレンダーされるreactの性質に注意)
@@ -34,14 +25,30 @@ const Popup: React.FC = () => {
         collectTabInfo();
     }, [])
 
+    useEffect(() => {
+        asyncRuntimeSendMessage('videoStateChanged');
+        if (tabId === NaN || videoTitle === undefined || tabUrl === undefined || videoStartTime === NaN) {
+            setMainDiv(<NotYouTubeDiv/>)
+        } else {
+            switch (videoState) {
+                case 'notYouTube':
+                    setMainDiv(<NotYouTubeDiv/>)
+                    break;
+                default:
+                    setMainDiv(<StartTimeRegisteredDiv tabId={tabId} videoTitle={videoTitle} url={tabUrl} startTime={videoStartTime} />)
+                    break;
+            }
+        }
+        console.log(mainDiv);
+    }, [videoState])
+
     return (
         <div style={{width: '200px'}}>
-            <p>tabId: {tabId}</p>
-            <p>title: {videoTitle}</p>
-            <p>url: {tabUrl}</p>
-            <JumpButton tabId={tabId} startTime={videoStartTime}></JumpButton>
+            {videoState}
+            {mainDiv}
         </div>
     );
+
 }
 
 export default Popup;

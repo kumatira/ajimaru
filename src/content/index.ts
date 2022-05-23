@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
     // popupからのmessageを受け取り、ビデオをジャンプさせる
     if (message.type === 'messageToContentFromPopupForJumping') {
         let video = document.getElementsByClassName('html5-main-video')[0] as any;
-        video.currentTime = 600;
+        video.currentTime = message.startTime;
         sendResponse();
         return true;
     }

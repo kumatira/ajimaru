@@ -1,17 +1,7 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
-    // backgroundからのhandshakeを受け取り、resとしてtitleを返す
-    if (message.type === 'handshakeFromBackgroundToContentForVideoTitle') {
-        const titleElement = document.querySelector('.title.style-scope.ytd-video-primary-info-renderer')?.firstChild as HTMLElement
-        if (titleElement === undefined) {
-            sendResponse({
-                videoTitle: undefined
-            })
-            return true;
-        }
-        const title = titleElement.innerText
-        sendResponse({
-            videoTitle: title
-        });
+    // backgroundからのhandshakeを受け取り、存在確認に応答する
+    if (message.type === 'handshakeFromBackgroundToContent') {
+        sendResponse();
         return true;
     }
 

@@ -24,12 +24,10 @@ const isYouTubeVideoUrl = (url:URL):boolean => {
 
 //ContentScriptが読み込まれているか確認し、いなければインサートする
 const checkAndInsertContentScript = async (targetTabId):Promise<undefined> => {
-    console.log('checkAndInsertContentScript()');
     try {
         await asyncTabsSendMessageWith(targetTabId, {type: 'handshakeFromBackgroundToContent'});
         return
     } catch (error) {
-        console.log(error);
         if (error === 'ReceiverDoesNotExist') { // content.jsが読み込まれておらずメッセージの送り先がない時は、content.jsを読み込んだ上で呼び直す
             await chrome.scripting.executeScript({
                 target: {tabId: targetTabId, frameIds: [0]},
@@ -37,6 +35,7 @@ const checkAndInsertContentScript = async (targetTabId):Promise<undefined> => {
             });
             return
         }
+        console.log(error);
     }
 }
 
@@ -55,7 +54,6 @@ const getVGetVideoInfo = async (youTubeVideoId:string):Promise< VGetVideo | unde
     const query = new URLSearchParams({videoId: `YT_V_${youTubeVideoId}`})
     try {
         const res = await fetch('https://api-development.vget.dev/v1/videos?' + query); // GET
-        console.log(res);
         if (res.ok) {
             return res.json()
         } else {
@@ -88,10 +86,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
             videoStartTime: currentVideoStartTime
         };
         sendResponse(res);
-        console.log(res);
         return true;
     }
-    console.log(message);
+    console.log(`ReceivedMessage: ${message}`);
     sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
     return true;
 });

@@ -142,23 +142,23 @@ const updateStatus = async (triggerEvent) => {
     } else {
         await checkAndInsertContentScript(currentTabId);
         const videoId = currentTabUrl.searchParams.get('v');
-        const vgetVideoInfo = (await getVGetVideoInfo(videoId)).ResultSet.videos[0];
-        console.log(vgetVideoInfo);
+        const vgetVideoInfo = (await getVGetVideoInfo(videoId))?.ResultSet.videos[0];
+        console.log('vgetVideoInfo:', vgetVideoInfo);
 
-        if (vgetVideoInfo === undefined) {
+        if (vgetVideoInfo === undefined) { //見つからなかった
             currentVideoState = 'vgetNotFound';
             currentVideoTitle = undefined;
             currentVideoStartTime = NaN;
-        } else if (!vgetVideoInfo.tags.some(tag => tag.startsWith('startTime:'))) {
-            currentVideoState = 'vgetDoesntHaveStartTime';
-            currentVideoTitle = vgetVideoInfo.title;
-            currentVideoStartTime = NaN;
-        } else {
+        } else if (vgetVideoInfo.hasOwnProperty('tags') && vgetVideoInfo.tags.some(tag => tag.startsWith('startTime:'))) {
             currentVideoState = 'vgetHasStartTime';
             currentVideoTitle = vgetVideoInfo.title;
             const startTimeTag = vgetVideoInfo.tags.find(tag => tag.startsWith('startTime:'));
             currentVideoStartTime = Number(startTimeTag.split(':')[1]);
             await asyncSetIcon({path: "icon32_able.png", tabId: currentTabId});
+        } else {  //タグが一つもない or startTimeタグが付いてなかった
+            currentVideoState = 'vgetDoesntHaveStartTime';
+            currentVideoTitle = vgetVideoInfo.title;
+            currentVideoStartTime = NaN;
         }
     }
 

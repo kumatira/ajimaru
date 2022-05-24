@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import {asyncTabsGet, asyncRuntimeSendMessage, asyncTabsSendMessageWith } from '../lib/asyncChrome';
-import { NotYouTubeDiv, StartTimeRegisteredDiv } from './mainDiv';
+import { asyncRuntimeSendMessage } from '../lib/asyncChrome';
+import { NotYouTubeDiv, VideoNotFoundDiv, StartTimeUnregisteredDiv, StartTimeRegisteredDiv, ErrorDiv } from './mainDiv';
 
 const Popup: React.FC = () => {
     const [tabId, setTabId] = useState<number>(NaN);
@@ -26,20 +26,28 @@ const Popup: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        asyncRuntimeSendMessage('videoStateChanged');
-        if (tabId === NaN || videoTitle === undefined || tabUrl === undefined || videoStartTime === NaN) {
-            setMainDiv(<NotYouTubeDiv/>)
-        } else {
-            switch (videoState) {
-                case 'notYouTube':
-                    setMainDiv(<NotYouTubeDiv/>)
-                    break;
-                default:
+        switch (videoState) {
+            case 'notYouTube':
+                setMainDiv(<NotYouTubeDiv/>)
+                break;
+            case 'vgetNotFound':
+                setMainDiv(<VideoNotFoundDiv/>)
+                break;
+            case 'vgetDoesntHaveStartTime':
+                setMainDiv(<StartTimeUnregisteredDiv/>)
+                break;
+            case 'vgetHasStartTime':
+                if (tabId !== NaN && videoTitle !== undefined && tabUrl !== undefined && videoStartTime !== NaN) {
                     setMainDiv(<StartTimeRegisteredDiv tabId={tabId} videoTitle={videoTitle} url={tabUrl} startTime={videoStartTime} />)
                     break;
-            }
+                } else {
+                    setMainDiv(<ErrorDiv/>)
+                    break;
+                }
+            default:
+                setMainDiv(<ErrorDiv/>)
+                break;
         }
-        console.log(mainDiv);
     }, [videoState])
 
     return (

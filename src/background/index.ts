@@ -24,12 +24,10 @@ const isYouTubeVideoUrl = (url:URL):boolean => {
 
 //ContentScriptが読み込まれているか確認し、いなければインサートする
 const checkAndInsertContentScript = async (targetTabId):Promise<undefined> => {
-    console.log('checkAndInsertContentScript()');
     try {
         await asyncTabsSendMessageWith(targetTabId, {type: 'handshakeFromBackgroundToContent'});
         return
     } catch (error) {
-        console.log(error);
         if (error === 'ReceiverDoesNotExist') { // content.jsが読み込まれておらずメッセージの送り先がない時は、content.jsを読み込んだ上で呼び直す
             await chrome.scripting.executeScript({
                 target: {tabId: targetTabId, frameIds: [0]},
@@ -37,6 +35,7 @@ const checkAndInsertContentScript = async (targetTabId):Promise<undefined> => {
             });
             return
         }
+        console.log(error);
     }
 }
 
@@ -55,7 +54,6 @@ const getVGetVideoInfo = async (youTubeVideoId:string):Promise< VGetVideo | unde
     const query = new URLSearchParams({videoId: `YT_V_${youTubeVideoId}`})
     try {
         const res = await fetch('https://api-development.vget.dev/v1/videos?' + query); // GET
-        console.log(res);
         if (res.ok) {
             return res.json()
         } else {
@@ -88,10 +86,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
             videoStartTime: currentVideoStartTime
         };
         sendResponse(res);
-        console.log(res);
         return true;
     }
-    console.log(message);
+    console.log(`ReceivedMessage: ${message}`);
     sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
     return true;
 });
@@ -142,23 +139,23 @@ const updateStatus = async (triggerEvent) => {
     } else {
         await checkAndInsertContentScript(currentTabId);
         const videoId = currentTabUrl.searchParams.get('v');
-        const vgetVideoInfo = (await getVGetVideoInfo(videoId)).ResultSet.videos[0];
-        console.log(vgetVideoInfo);
+        const vgetVideoInfo = (await getVGetVideoInfo(videoId))?.ResultSet.videos[0];
+        console.log('vgetVideoInfo:', vgetVideoInfo);
 
-        if (vgetVideoInfo === undefined) {
+        if (vgetVideoInfo === undefined) { //見つからなかった
             currentVideoState = 'vgetNotFound';
             currentVideoTitle = undefined;
             currentVideoStartTime = NaN;
-        } else if (!vgetVideoInfo.tags.some(tag => tag.startsWith('startTime:'))) {
-            currentVideoState = 'vgetDoesntHaveStartTime';
-            currentVideoTitle = vgetVideoInfo.title;
-            currentVideoStartTime = NaN;
-        } else {
+        } else if (vgetVideoInfo.hasOwnProperty('tags') && vgetVideoInfo.tags.some(tag => tag.startsWith('startTime:'))) {
             currentVideoState = 'vgetHasStartTime';
             currentVideoTitle = vgetVideoInfo.title;
             const startTimeTag = vgetVideoInfo.tags.find(tag => tag.startsWith('startTime:'));
             currentVideoStartTime = Number(startTimeTag.split(':')[1]);
             await asyncSetIcon({path: "icon32_able.png", tabId: currentTabId});
+        } else {  //タグが一つもない or startTimeタグが付いてなかった
+            currentVideoState = 'vgetDoesntHaveStartTime';
+            currentVideoTitle = vgetVideoInfo.title;
+            currentVideoStartTime = NaN;
         }
     }
 

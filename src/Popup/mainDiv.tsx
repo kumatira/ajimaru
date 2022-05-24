@@ -14,7 +14,7 @@ const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
 
 export const NotYouTubeDiv: React.FC<{}> = (props) => {
     return (
-        <p>This isn't YouTUbe Video page...</p>
+        <p>This isn't YouTube Video page...</p>
     );
 }
 
@@ -39,5 +39,11 @@ export const StartTimeRegisteredDiv: React.FC<{tabId: number; videoTitle:string,
             <p>startTime: {props.startTime}</p>
             <JumpButton tabId={props.tabId} startTime={props.startTime}></JumpButton>
         </div>
+    );
+}
+
+export const ErrorDiv: React.FC<{}> = (props) => {
+    return (
+        <p>something wrong...</p>
     );
 }

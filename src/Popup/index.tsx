@@ -51,8 +51,7 @@ const Popup: React.FC = () => {
     }, [videoState])
 
     return (
-        <div style={{width: '200px'}}>
-            {videoState}
+        <div>
             {mainDiv}
         </div>
     );

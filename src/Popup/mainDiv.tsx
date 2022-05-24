@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import {asyncTabsGet, asyncRuntimeSendMessage, asyncTabsSendMessageWith } from '../lib/asyncChrome';
+import {asyncTabsGet, asyncTabsSendMessageWith } from '../lib/asyncChrome';
+import { Button, Box } from '@mui/material';
+import YouTubeIcon from '@mui/icons-material/YouTube';
 
 const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
     const jump = async ()=>{
@@ -14,7 +15,14 @@ const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
 
 export const NotYouTubeDiv: React.FC<{}> = (props) => {
     return (
-        <p>This isn't YouTube Video page...</p>
+        <div>
+            <small>{chrome.i18n.getMessage('not_YouTube_div_note')}</small>
+            <Box textAlign='center'>
+                <Button variant="outlined" size="small" target="_blank" href='https://www.youtube.com/results?search_query=VTuber&sp=CAI%253D' startIcon={<YouTubeIcon />}>
+                    Go VTuber Streams!
+                </Button>
+            </Box>
+        </div>
     );
 }
 

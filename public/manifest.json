@@ -20,5 +20,6 @@
   ],
   "host_permissions": [
     "https://*.youtube.com/"
-  ]
+  ],
+  "default_locale": "en"
 }

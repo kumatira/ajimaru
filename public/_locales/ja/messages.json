@@ -1,0 +1,10 @@
+{
+    "not_YouTube_div_message1": {
+        "message": "VTuberさんの配信を見ましょう",
+        "description": "NotYouTubeDivの1行目"
+    },
+    "not_YouTube_div_note": {
+        "message": "この拡張機能はwww.youtube.com/watchで動作します",
+        "description": "NotYouTubeDivの注釈"
+    }
+}

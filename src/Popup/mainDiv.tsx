@@ -1,6 +1,8 @@
 import {asyncTabsGet, asyncTabsSendMessageWith } from '../lib/asyncChrome';
 import { Button, Box, createTheme, ThemeProvider } from '@mui/material';
-import YouTubeIcon from '@mui/icons-material/YouTube';
+import { YouTube, PostAdd} from '@mui/icons-material';
+// import YouTubeIcon from '@mui/icons-material/YouTube';
+// import PostAddIcon from '@mui/icons-material/PostAdd';
 
 const youTubeTheme = createTheme({
     palette: {
@@ -33,7 +35,7 @@ export const NotYouTubeDiv: React.FC<{}> = (props) => {
                         target="_blank"
                         href='https://www.youtube.com/results?search_query=VTuber&sp=CAI%253D'
                         color="primary"
-                        startIcon={<YouTubeIcon />} >
+                        startIcon={< YouTube />} >
                         Go VTuber Streams!
                     </Button>
                 </Box>
@@ -42,15 +44,41 @@ export const NotYouTubeDiv: React.FC<{}> = (props) => {
     );
 }
 
-export const VideoNotFoundDiv: React.FC<{}> = (props) => {
+export const VideoNotFoundDiv: React.FC<{videoId:string}> = (props) => {
     return (
-        <p>VideoNotFoundDiv</p>
+        <div>
+            <p>{chrome.i18n.getMessage('video_not_found_div_message')}</p>
+            <Box textAlign='center'>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        target="_blank"
+                        href={chrome.i18n.getMessage('form_link', props.videoId)}
+                        color="primary"
+                        endIcon={<PostAdd />} >
+                        {chrome.i18n.getMessage('form_post_button')}
+                    </Button>
+                </Box>
+        </div>
     );
 }
 
-export const StartTimeUnregisteredDiv: React.FC<{}> = (props) => {
+export const StartTimeUnregisteredDiv: React.FC<{videoId:string}> = (props) => {
     return (
-        <p>StartTimeUnregisteredDiv</p>
+        <div>
+            <p>{chrome.i18n.getMessage('start_time_unregistered_div_message')}</p>
+            <Box textAlign='center'>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        target="_blank"
+                        href={chrome.i18n.getMessage('form_link', props.videoId)}
+                        color="primary"
+                        endIcon={<PostAdd />} >
+                        {chrome.i18n.getMessage('form_post_button')}
+                    </Button>
+                </Box>
+        </div>
     );
 }
 

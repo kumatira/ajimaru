@@ -1,10 +1,28 @@
 {
-    "not_YouTube_div_message1": {
-        "message": "Why not watch VTuber stream",
-        "description": "NotYouTubeDivの1行目"
-    },
     "not_YouTube_div_note": {
         "message": "This extension works on 'www.youtube.com/watch'.",
         "description": "NotYouTubeDivの注釈"
+    },
+    "video_not_found_div_message": {
+        "message": "Sry :( I don't know this video.Is this a VTuber live stream?",
+        "description": "VideoNotFoundDivのメッセージ"
+    },
+    "start_time_unregistered_div_message": {
+        "message": "Sry :( I don't know start time of this video.Can you post the timestamp?",
+        "description": "VideoNotFoundDivのメッセージ"
+    },
+    "form_post_button": {
+        "message": "Post",
+        "description": "あじまる 情報投稿フォームのボタン"
+    },
+    "form_link": {
+        "message": "https://docs.google.com/forms/d/e/1FAIpQLSdJUXQp3vnO6hygl3XHYNUQxSe4EsKY21iLDV_wI0QtBuS_6Q/viewform?usp=pp_url&entry.1238459248=0:00&entry.749836811=$videoId$",
+        "description": "あじまる 情報投稿フォームのURL",
+        "placeholders": {
+            "videoId": {
+                "content": "$1",
+                "example": "kT0xKRunIFo"
+            }
+        }
     }
 }

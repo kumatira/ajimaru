@@ -1,10 +1,28 @@
 {
-    "not_YouTube_div_message1": {
-        "message": "VTuberさんの配信を見ましょう",
-        "description": "NotYouTubeDivの1行目"
-    },
     "not_YouTube_div_note": {
         "message": "この拡張機能はwww.youtube.com/watchで動作します",
         "description": "NotYouTubeDivの注釈"
+    },
+    "video_not_found_div_message": {
+        "message": "ごめんなさい:( この動画は未登録のようです。これはVTuberさんの配信ですか?",
+        "description": "VideoNotFoundDivのメッセージ"
+    },
+    "start_time_unregistered_div_message": {
+        "message": "ごめんなさい:( この動画の開始時間がわかりません。教えてもらますか?",
+        "description": "VideoNotFoundDivのメッセージ"
+    },
+    "form_post_button": {
+        "message": "投稿する",
+        "description": "あじまる 情報投稿フォームのボタン"
+    },
+    "form_link": {
+        "message": "https://docs.google.com/forms/d/e/1FAIpQLScKGiGIBgIOIg_Z7FOhzWrLuJXQ76ib03fghKx2p_DeHrX_mg/viewform?usp=pp_url&entry.1238459248=0:00&entry.749836811=$videoId$",
+        "description": "あじまる 情報投稿フォームのURL",
+        "placeholders": {
+            "videoId": {
+                "content": "$1",
+                "example": "kT0xKRunIFo"
+            }
+        }
     }
 }

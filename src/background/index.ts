@@ -4,6 +4,7 @@ const resetProperties = ():void => {
     currentTabId = NaN;
     currentTabTitle = undefined;
     currentTabUrl = undefined;
+    currentVideoId = undefined;
     currentVideoTitle = undefined;
     currentVideoState = 'notYouTube';
     currentVideoStartTime  = NaN;
@@ -69,6 +70,7 @@ const getVGetVideoInfo = async (youTubeVideoId:string):Promise< VGetVideo | unde
 let currentTabId: number;
 let currentTabTitle: string | undefined;
 let currentTabUrl: URL | undefined;
+let currentVideoId: string | undefined;
 let currentVideoTitle: string | undefined;
 let currentVideoState: 'notYouTube' | 'vgetNotFound' | 'vgetDoesntHaveStartTime' | 'vgetHasStartTime';
 let currentVideoStartTime: number;
@@ -81,6 +83,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
             tabId: currentTabId,
             tabTitle:currentTabTitle,
             tabUrl: currentTabUrl,
+            videoId: currentVideoId,
             videoTitle: currentVideoTitle,
             videoState: currentVideoState,
             videoStartTime: currentVideoStartTime
@@ -130,6 +133,7 @@ const updateStatus = async (triggerEvent) => {
     currentTabId = newTab.id;
     currentTabTitle = newTab.title;
     currentTabUrl = new URL(newTab.url);
+    currentVideoId = undefined;
     console.log(`update by ${triggerEvent}`, currentTabUrl);
     await asyncSetIcon({path: "icon32_disable.png", tabId: currentTabId});
 
@@ -138,8 +142,8 @@ const updateStatus = async (triggerEvent) => {
         currentVideoTitle = undefined;
     } else {
         await checkAndInsertContentScript(currentTabId);
-        const videoId = currentTabUrl.searchParams.get('v');
-        const vgetVideoInfo = (await getVGetVideoInfo(videoId))?.ResultSet.videos[0];
+        currentVideoId = currentTabUrl.searchParams.get('v');
+        const vgetVideoInfo = (await getVGetVideoInfo(currentVideoId))?.ResultSet.videos[0];
         console.log('vgetVideoInfo:', vgetVideoInfo);
 
         if (vgetVideoInfo === undefined) { //見つからなかった
@@ -163,6 +167,7 @@ const updateStatus = async (triggerEvent) => {
     currentTabId: ${currentTabId}
     currentTabTitle: ${currentTabTitle}
     currentTabUrl: ${currentTabUrl}
+    currentVideoId: ${currentVideoId}
     currentVideoTitle: ${currentVideoTitle}
     currentVideoState: ${currentVideoState}
     `);

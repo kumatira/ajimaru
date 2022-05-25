@@ -13,29 +13,31 @@ const youTubeTheme = createTheme({
 
 export const NotYouTubeDiv: React.FC<{}> = (props) => {
     return (
-        <div>
+        <Box textAlign='center' sx={{ width:'300px', p:'4px'}}>
+            <Typography fontSize='3vw' display='block' gutterBottom>
+                {chrome.i18n.getMessage('not_YouTube_div_note')}
+            </Typography>
             <ThemeProvider theme={youTubeTheme}>
-                <small>{chrome.i18n.getMessage('not_YouTube_div_note')}</small>
-                <Box textAlign='center'>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        target="_blank"
-                        href='https://www.youtube.com/results?search_query=VTuber&sp=CAI%253D'
-                        color="primary"
-                        startIcon={< YouTube />} >
-                        Go VTuber Streams!
-                    </Button>
-                </Box>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    target="_blank"
+                    href='https://www.youtube.com/results?search_query=VTuber&sp=CAI%253D'
+                    color="primary"
+                    startIcon={< YouTube />} >
+                    Go VTuber Streams!
+                </Button>
             </ThemeProvider>
-        </div>
+        </Box>
     );
 }
 
 export const VideoNotFoundDiv: React.FC<{videoId:string}> = (props) => {
     return (
-        <div>
-            <p>{chrome.i18n.getMessage('video_not_found_div_message')}</p>
+        <Box sx={{ width:'200px', p:'4px'}}>
+            <Typography variant='caption' display='block' gutterBottom>
+                {chrome.i18n.getMessage('video_not_found_div_message')}
+            </Typography>
             <Box textAlign='center'>
                 <Button
                     variant="outlined"
@@ -47,26 +49,28 @@ export const VideoNotFoundDiv: React.FC<{videoId:string}> = (props) => {
                     {chrome.i18n.getMessage('form_post_button')}
                 </Button>
             </Box>
-        </div>
+        </Box>
     );
 }
 
 export const StartTimeUnregisteredDiv: React.FC<{videoId:string}> = (props) => {
     return (
-        <div>
-            <p>{chrome.i18n.getMessage('start_time_unregistered_div_message')}</p>
+        <Box sx={{ width:'200px', p:'4px'}}>
+            <Typography variant='caption' display='block' gutterBottom>
+                {chrome.i18n.getMessage('start_time_unregistered_div_message')}
+            </Typography>
             <Box textAlign='center'>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        target="_blank"
-                        href={chrome.i18n.getMessage('form_link', props.videoId)}
-                        color="primary"
-                        endIcon={<PostAdd />} >
-                        {chrome.i18n.getMessage('form_post_button')}
-                    </Button>
-                </Box>
-        </div>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    target="_blank"
+                    href={chrome.i18n.getMessage('form_link', props.videoId)}
+                    color="primary"
+                    endIcon={<PostAdd />} >
+                    {chrome.i18n.getMessage('form_post_button')}
+                </Button>
+            </Box>
+        </Box>
     );
 }
 
@@ -77,7 +81,7 @@ export const StartTimeRegisteredDiv: React.FC<{tabId: number; videoId: string; v
         await asyncTabsSendMessageWith(tabId, {type: 'messageToContentFromPopupForJumping', startTime: startTime});
     }
     return (
-        <div>
+        <Box sx={{ width:'300px', p:'4px'}}>
             <Card>
                 <CardMedia
                     component="img"
@@ -105,8 +109,7 @@ export const StartTimeRegisteredDiv: React.FC<{tabId: number; videoId: string; v
                     </Button>
                 </CardActions>
             </Card>
-        </div>
-
+        </Box>
     );
 }
 

@@ -1,8 +1,7 @@
 import {asyncTabsGet, asyncTabsSendMessageWith } from '../lib/asyncChrome';
-import { Button, Box, createTheme, ThemeProvider } from '@mui/material';
-import { YouTube, PostAdd} from '@mui/icons-material';
-// import YouTubeIcon from '@mui/icons-material/YouTube';
-// import PostAddIcon from '@mui/icons-material/PostAdd';
+import { Button, Box, createTheme, ThemeProvider, Card, CardMedia, CardContent, Typography, CardActions } from '@mui/material';
+import { YouTube, PostAdd, DirectionsRun} from '@mui/icons-material';
+import { makeMinSecString} from '../lib/util';
 
 const youTubeTheme = createTheme({
     palette: {
@@ -11,17 +10,6 @@ const youTubeTheme = createTheme({
         },
     },
 });
-
-const JumpButton: React.FC<{ tabId: number; startTime: number}> = (props) => {
-    const jump = async ()=>{
-        const tab = await asyncTabsGet(props.tabId);
-        if (tab.status !== 'complete') { return };
-        await asyncTabsSendMessageWith(props.tabId, {type: 'messageToContentFromPopupForJumping', startTime: props.startTime});
-    }
-    return (
-        <button onClick={async () => await jump()}>Jump to {props.startTime}s</button>
-    );
-}
 
 export const NotYouTubeDiv: React.FC<{}> = (props) => {
     return (
@@ -49,16 +37,16 @@ export const VideoNotFoundDiv: React.FC<{videoId:string}> = (props) => {
         <div>
             <p>{chrome.i18n.getMessage('video_not_found_div_message')}</p>
             <Box textAlign='center'>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        target="_blank"
-                        href={chrome.i18n.getMessage('form_link', props.videoId)}
-                        color="primary"
-                        endIcon={<PostAdd />} >
-                        {chrome.i18n.getMessage('form_post_button')}
-                    </Button>
-                </Box>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    target="_blank"
+                    href={chrome.i18n.getMessage('form_link', props.videoId)}
+                    color="primary"
+                    endIcon={<PostAdd />} >
+                    {chrome.i18n.getMessage('form_post_button')}
+                </Button>
+            </Box>
         </div>
     );
 }
@@ -82,15 +70,43 @@ export const StartTimeUnregisteredDiv: React.FC<{videoId:string}> = (props) => {
     );
 }
 
-export const StartTimeRegisteredDiv: React.FC<{tabId: number; videoTitle:string, url: string, startTime: number}> = (props) => {
+export const StartTimeRegisteredDiv: React.FC<{tabId: number; videoId: string; videoTitle: string, url: string, startTime: number}> = (props) => {
+    const jump = async (tabId: number, startTime: number)=>{
+        const tab = await asyncTabsGet(tabId);
+        if (tab.status !== 'complete') { return };
+        await asyncTabsSendMessageWith(tabId, {type: 'messageToContentFromPopupForJumping', startTime: startTime});
+    }
     return (
         <div>
-            <p>tabId: {props.tabId}</p>
-            <p>title: {props.videoTitle}</p>
-            <p>url: {props.url}</p>
-            <p>startTime: {props.startTime}</p>
-            <JumpButton tabId={props.tabId} startTime={props.startTime}></JumpButton>
+            <Card>
+                <CardMedia
+                    component="img"
+                    height="130"
+                    image={`https://img.youtube.com/vi/${props.videoId}/hqdefault.jpg`}
+                    alt="video thumbnail"
+                />
+                <CardContent>
+                    <Typography sx={{ lineHeight: 1.2}}>
+                        {props.videoTitle}
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        fullWidth
+                        startIcon={<DirectionsRun />}
+                        onClick={() => {
+                            jump(props.tabId, props.startTime);
+                        }}
+                    >
+                        Jump to {makeMinSecString(props.startTime)}
+                    </Button>
+                </CardActions>
+            </Card>
         </div>
+
     );
 }
 

@@ -47,8 +47,8 @@ const Popup: React.FC = () => {
                 }
                 break;
             case 'vgetHasStartTime':
-                if (tabId !== NaN && videoTitle !== undefined && tabUrl !== undefined && videoStartTime !== NaN) {
-                    setMainDiv(<StartTimeRegisteredDiv tabId={tabId} videoTitle={videoTitle} url={tabUrl} startTime={videoStartTime} />)
+                if (tabId !== NaN && videoId !== undefined && videoTitle !== undefined && tabUrl !== undefined && videoStartTime !== NaN) {
+                    setMainDiv(<StartTimeRegisteredDiv tabId={tabId} videoId={videoId} videoTitle={videoTitle} url={tabUrl} startTime={videoStartTime} />)
                 } else {
                     setMainDiv(<ErrorDiv/>)
                 }

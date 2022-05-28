@@ -12,9 +12,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
         sendResponse();
         return true;
     }
-    // 特定の用途(message)以外ではとりあえず終わった事だけ返す
-    console.log(message);
-    sendResponse();
+    console.log(`ReceivedMessage: ${message}`);
+    sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
     return true;
 });
 

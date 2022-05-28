@@ -129,12 +129,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 const updateStatus = async (triggerEvent, tab) => {
-    console.log('tab', tab);
     currentTabId = tab.id;
     currentTabTitle = tab.title;
     currentTabUrl = new URL(tab.url);
     currentVideoId = undefined;
-    console.log(`update by ${triggerEvent}`, currentTabUrl);
     await asyncSetIcon({path: "icon32_disable.png", tabId: currentTabId});
 
     if (!isYouTubeVideoUrl(currentTabUrl)) {
@@ -144,7 +142,6 @@ const updateStatus = async (triggerEvent, tab) => {
         await checkAndInsertContentScript(currentTabId);
         currentVideoId = currentTabUrl.searchParams.get('v');
         const vgetVideoInfo = (await getVGetVideoInfo(currentVideoId))?.ResultSet.videos[0];
-        console.log('vgetVideoInfo:', vgetVideoInfo);
 
         if (vgetVideoInfo === undefined) { //見つからなかった
             currentVideoState = 'vgetNotFound';

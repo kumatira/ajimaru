@@ -1,4 +1,4 @@
-import { asyncTabsQuery, asyncSetIcon, asyncTabsGet, asyncTabsSendMessageWith } from '../lib/asyncChrome';
+import { asyncTabsQuery, asyncSetIcon, asyncTabsGet, asyncTabsSendMessageWith, asyncRuntimeSendMessage } from '../lib/asyncChrome';
 
 const resetProperties = ():void => {
     currentTabId = NaN;
@@ -101,7 +101,7 @@ chrome.tabs.onHighlighted.addListener(async (highlightInfo) => {
     const [highlightedTabId] = highlightInfo.tabIds;
     const tab = await asyncTabsGet(highlightedTabId);
     if (tab.status === 'complete') {
-        updateStatus('onHighlighted')
+        updateStatus('onHighlighted', tab)
     }else {
         // status: completeのonUpdateイベント(=load完了)を待つ
     }
@@ -119,22 +119,20 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         return
     }
     if (changeInfo.hasOwnProperty('status') && changeInfo.status === 'complete') {
-        updateStatus('onUpdated:status:complete');
+        updateStatus('onUpdated:status:complete', tab);
         return
     }
     if (changeInfo.hasOwnProperty('title')) {
-        updateStatus('onUpdated:title');
+        updateStatus('onUpdated:title', tab);
         return
     }
 });
 
-const updateStatus = async (triggerEvent) => {
-    const [newTab]: chrome.tabs.Tab[] = await asyncTabsQuery({active: true, currentWindow:true});
-    currentTabId = newTab.id;
-    currentTabTitle = newTab.title;
-    currentTabUrl = new URL(newTab.url);
+const updateStatus = async (triggerEvent, tab) => {
+    currentTabId = tab.id;
+    currentTabTitle = tab.title;
+    currentTabUrl = new URL(tab.url);
     currentVideoId = undefined;
-    console.log(`update by ${triggerEvent}`, currentTabUrl);
     await asyncSetIcon({path: "icon32_disable.png", tabId: currentTabId});
 
     if (!isYouTubeVideoUrl(currentTabUrl)) {
@@ -144,7 +142,6 @@ const updateStatus = async (triggerEvent) => {
         await checkAndInsertContentScript(currentTabId);
         currentVideoId = currentTabUrl.searchParams.get('v');
         const vgetVideoInfo = (await getVGetVideoInfo(currentVideoId))?.ResultSet.videos[0];
-        console.log('vgetVideoInfo:', vgetVideoInfo);
 
         if (vgetVideoInfo === undefined) { //見つからなかった
             currentVideoState = 'vgetNotFound';
@@ -162,7 +159,15 @@ const updateStatus = async (triggerEvent) => {
             currentVideoStartTime = NaN;
         }
     }
-
+    // 更新があったことをpopupに通知する
+    try {
+        await asyncRuntimeSendMessage('handshakeFromBackgroundToPopupForRefreshCollectTabInfo');
+    } catch (error) {
+        if (error === 'ReceiverDoesNotExist') { // Receiver = メッセージを受け取るポップアップが開かれていない
+            // 無視する
+        }
+        console.log(error);
+    }
     console.log(`
     currentTabId: ${currentTabId}
     currentTabTitle: ${currentTabTitle}

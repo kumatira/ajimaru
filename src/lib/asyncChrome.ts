@@ -37,7 +37,16 @@ const asyncRuntimeSendMessage = (message: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
             message,
-            (res)=>{resolve(res)}
+            (res)=>{
+                if (res !== undefined) {
+                    resolve(res);
+                } else {
+                    const error = chrome.runtime.lastError;
+                    if (error?.message === 'Could not establish connection. Receiving end does not exist.') {
+                        reject('ReceiverDoesNotExist')
+                    }
+                }
+            }
         )
     })
 }

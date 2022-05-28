@@ -25,6 +25,17 @@ const Popup: React.FC = () => {
     // 第二引数が[] = いずれのstateの変化にも反応せずロード時の一回のみ走る (stateが変わるたびにモジュール全体がレンダーされるreactの性質に注意)
     useEffect(() => {
         collectTabInfo();
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse)=>{
+            // Backgroundのrefresh通知を受け取り、再更新する
+            if (message === 'handshakeFromBackgroundToPopupForRefreshCollectTabInfo') {
+                collectTabInfo();
+                sendResponse();
+                return true;
+            }
+            console.log(`ReceivedMessage: ${message}`);
+            sendResponse(); // 特定の用途(message)以外ではとりあえず終わった事だけ返す
+            return true;
+        });
     }, [])
 
     useEffect(() => {

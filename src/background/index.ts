@@ -128,7 +128,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
 });
 
-const updateStatus = async (triggerEvent, tab) => {
+const updateStatus = async (triggerEvent: string, tab: chrome.tabs.Tab) => {
     currentTabId = tab.id;
     currentTabTitle = tab.title;
     currentTabUrl = new URL(tab.url);

@@ -3,7 +3,10 @@
   "name": "Ajimaru",
   "version": "0.0.1",
   "action": {
-    "default_icon": "icon32_disable.png",
+    "default_icon": {
+      "16": "icon/extension_icon16.png",
+      "32": "icon/extension_icon32.png"
+    },
     "default_title": "あじまる",
     "default_popup": "popup.html"
   },
@@ -21,5 +24,11 @@
   "host_permissions": [
     "https://*.youtube.com/"
   ],
-  "default_locale": "en"
+  "default_locale": "en",
+  "icons": {
+    "16": "icon/extension_icon16.png",
+    "32": "icon/extension_icon32.png",
+    "48": "icon/extension_icon48.png",
+    "128": "icon/extension_icon128.png"
+  }
 }

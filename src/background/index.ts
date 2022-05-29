@@ -1,4 +1,4 @@
-import { asyncTabsQuery, asyncSetIcon, asyncTabsGet, asyncTabsSendMessageWith, asyncRuntimeSendMessage } from '../lib/asyncChrome';
+import { asyncSetBadge, asyncResetBadge, asyncSetIcon, asyncTabsGet, asyncTabsSendMessageWith, asyncRuntimeSendMessage } from '../lib/asyncChrome';
 
 const resetProperties = ():void => {
     currentTabId = NaN;
@@ -133,7 +133,7 @@ const updateStatus = async (triggerEvent, tab) => {
     currentTabTitle = tab.title;
     currentTabUrl = new URL(tab.url);
     currentVideoId = undefined;
-    await asyncSetIcon({path: "icon32_disable.png", tabId: currentTabId});
+    await asyncResetBadge();
 
     if (!isYouTubeVideoUrl(currentTabUrl)) {
         currentVideoState = 'notYouTube';
@@ -152,11 +152,12 @@ const updateStatus = async (triggerEvent, tab) => {
             currentVideoTitle = vgetVideoInfo.title;
             const startTimeTag = vgetVideoInfo.tags.find(tag => tag.startsWith('startTime:'));
             currentVideoStartTime = Number(startTimeTag.split(':')[1]);
-            await asyncSetIcon({path: "icon32_able.png", tabId: currentTabId});
+            await asyncSetBadge('#50DB65', '✓');
         } else {  //タグが一つもない or startTimeタグが付いてなかった
             currentVideoState = 'vgetDoesntHaveStartTime';
             currentVideoTitle = vgetVideoInfo.title;
             currentVideoStartTime = NaN;
+            await asyncSetBadge('#616161', '?');
         }
     }
     // 更新があったことをpopupに通知する

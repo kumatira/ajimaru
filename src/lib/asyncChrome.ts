@@ -16,6 +16,15 @@ const asyncSetIcon = (details: chrome.action.TabIconDetails): Promise<void> => {
     })
 }
 
+const asyncResetBadge = async (): Promise<void> => {
+    await chrome.action.setBadgeText({text: ''});
+}
+
+const asyncSetBadge = async (color: string, text: string): Promise<void> => {
+    await chrome.action.setBadgeBackgroundColor({color: color});
+    await chrome.action.setBadgeText({text: text});
+}
+
 const asyncTabsGet = (tabId: number): Promise<chrome.tabs.Tab> => {
     return new Promise((resolve, reject) => {
         chrome.tabs.get(
@@ -81,6 +90,8 @@ const asyncTabsSendMessageWith = (tabId: number, message: any): Promise<any> => 
 export {
     asyncTabsQuery,
     asyncSetIcon,
+    asyncResetBadge,
+    asyncSetBadge,
     asyncTabsGet,
     asyncRuntimeSendMessageWithOutResponse,
     asyncRuntimeSendMessage,

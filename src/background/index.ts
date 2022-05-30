@@ -110,8 +110,7 @@ chrome.tabs.onHighlighted.addListener(async (highlightInfo) => {
 // タブ内frameに何らかの変更があったときに発火(status:loading, complete と title:hogeを拾う)
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.hasOwnProperty('audible') || changeInfo.hasOwnProperty('favIconUrl')) { return }
-
-    const [current] = (await chrome.history.search({text: '', maxResults: 1}));
+    const [current] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     if (tab.url !== current.url) {
         return
     }

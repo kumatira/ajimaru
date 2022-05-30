@@ -17,8 +17,6 @@
   "options_page": "options.html",
   "permissions": [
     "tabs",
-    "webNavigation",
-    "history",
     "scripting"
   ],
   "host_permissions": [
